@@ -1,0 +1,3397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  20040809   
+-->
+
+<!-- ======================================================================= -->
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" ns="http://jefferson.village.virginia.edu/eac" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <define name="m.ptrs">
+    <choice>
+      <ref name="ptr"/>
+      <ref name="extptr"/>
+    </choice>
+  </define>
+  <define name="m.refs">
+    <choice>
+      <ref name="ref"/>
+      <ref name="extref"/>
+      <ref name="bibref"/>
+      <ref name="title"/>
+      <ref name="archref"/>
+      <ref name="note"/>
+    </choice>
+  </define>
+  <define name="m.access">
+    <choice>
+      <ref name="corpname"/>
+      <ref name="famname"/>
+      <ref name="persname"/>
+      <ref name="funact"/>
+      <ref name="subject"/>
+      <ref name="genreform"/>
+    </choice>
+  </define>
+  <define name="m.data">
+    <choice>
+      <ref name="m.access"/>
+      <ref name="date"/>
+      <ref name="num"/>
+      <ref name="place"/>
+    </choice>
+  </define>
+  <define name="m.base">
+    <choice>
+      <ref name="emph"/>
+      <ref name="lb"/>
+      <ref name="abbr"/>
+      <ref name="expan"/>
+    </choice>
+  </define>
+  <define name="m.base.ptrs">
+    <choice>
+      <ref name="m.base"/>
+      <ref name="m.ptrs"/>
+    </choice>
+  </define>
+  <define name="m.base.ptrs.refs">
+    <choice>
+      <ref name="m.base.ptrs"/>
+      <ref name="m.refs"/>
+    </choice>
+  </define>
+  <define name="m.base.ptrs.data">
+    <choice>
+      <ref name="m.base.ptrs"/>
+      <ref name="m.data"/>
+    </choice>
+  </define>
+  <define name="m.base.ptrs.refs.data">
+    <choice>
+      <ref name="m.base.ptrs"/>
+      <ref name="m.data"/>
+      <ref name="m.refs"/>
+    </choice>
+  </define>
+  <define name="m.inter">
+    <choice>
+      <ref name="address"/>
+      <ref name="chronlist"/>
+      <ref name="list"/>
+      <ref name="table"/>
+    </choice>
+  </define>
+  <define name="m.inter.quote">
+    <choice>
+      <ref name="m.inter"/>
+      <ref name="blockquote"/>
+    </choice>
+  </define>
+  <define name="m.blocks">
+    <choice>
+      <ref name="m.inter.quote"/>
+      <ref name="p"/>
+    </choice>
+  </define>
+  <!-- note: m.block.noquote used in content model of blockquote -->
+  <define name="m.blocks.noquote">
+    <choice>
+      <ref name="m.inter"/>
+      <ref name="p"/>
+    </choice>
+  </define>
+  <define name="m.para.content">
+    <choice>
+      <ref name="m.base.ptrs.refs.data"/>
+      <ref name="m.inter.quote"/>
+    </choice>
+  </define>
+  <define name="m.para.content.norefs">
+    <choice>
+      <ref name="m.base.ptrs.data"/>
+      <ref name="m.inter"/>
+    </choice>
+  </define>
+  <define name="m.table.entry">
+    <choice>
+      <ref name="m.base.ptrs.refs.data"/>
+      <ref name="address"/>
+      <ref name="list"/>
+    </choice>
+  </define>
+  <define name="m.arch">
+    <choice>
+      <ref name="abstract"/>
+      <ref name="physdesc"/>
+      <ref name="descnote"/>
+      <ref name="repository"/>
+      <ref name="origination"/>
+      <ref name="unitdate"/>
+      <ref name="unitid"/>
+      <ref name="unittitle"/>
+      <ref name="container"/>
+      <ref name="physloc"/>
+      <ref name="langmaterial"/>
+      <ref name="materialspec"/>
+    </choice>
+  </define>
+  <define name="m.namehead">
+    <oneOrMore>
+      <ref name="part"/>
+    </oneOrMore>
+    <group>
+      <zeroOrMore>
+        <choice>
+          <ref name="existdate"/>
+          <ref name="place"/>
+          <ref name="nameadd"/>
+        </choice>
+      </zeroOrMore>
+      <optional>
+        <ref name="usedate"/>
+      </optional>
+      <optional>
+        <choice>
+          <ref name="sourceref"/>
+          <ref name="sourcerefs"/>
+        </choice>
+      </optional>
+      <optional>
+        <choice>
+          <ref name="descnote"/>
+          <ref name="descnotes"/>
+        </choice>
+      </optional>
+    </group>
+  </define>
+  <define name="m.bibl">
+    <choice>
+      <text/>
+      <ref name="name"/>
+      <ref name="title"/>
+      <ref name="edition"/>
+      <ref name="imprint"/>
+      <ref name="bibseries"/>
+      <ref name="descnote"/>
+    </choice>
+  </define>
+  <define name="m.name">
+    <zeroOrMore>
+      <choice>
+        <text/>
+        <ref name="m.base"/>
+      </choice>
+    </zeroOrMore>
+  </define>
+  <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+  <!-- A. Parameter Entities for Attributes -->
+  <!-- ======================================================================= -->
+  <define name="id.type">
+    <data type="ID"/>
+  </define>
+  <define name="idref.type">
+    <data type="IDREF"/>
+  </define>
+  <define name="a.common">
+    <optional>
+      <attribute name="id">
+        <ref name="id.type"/>
+      </attribute>
+    </optional>
+  </define>
+  <define name="a.ea">
+    <optional>
+      <attribute name="ea">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+  </define>
+  <!--
+    a.sys, a.syskey, a.type, and a.value: consitute different
+    classes used in controlled type, values, rules, and
+    sources
+  -->
+  <define name="a.sys">
+    <optional>
+      <attribute name="system">
+        <data type="ENTITY"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="countrycode">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="ownercode">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+  </define>
+  <define name="a.syskey">
+    <optional>
+      <attribute name="syskey"/>
+    </optional>
+    <optional>
+      <attribute name="system">
+        <data type="ENTITY"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="countrycode">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="ownercode">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+  </define>
+  <define name="a.type">
+    <optional>
+      <attribute name="type"/>
+    </optional>
+    <optional>
+      <attribute name="typeauth">
+        <ref name="idref.type"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="typekey"/>
+    </optional>
+  </define>
+  <define name="a.value">
+    <optional>
+      <attribute name="valueauth">
+        <ref name="idref.type"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="valuekey"/>
+    </optional>
+  </define>
+  <define name="a.lang">
+    <optional>
+      <attribute name="languagecode">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="scriptcode">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+  </define>
+  <define name="a.head">
+    <optional>
+      <attribute name="rule">
+        <ref name="idref.type"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="authorized"/>
+    </optional>
+  </define>
+  <define name="a.date">
+    <optional>
+      <attribute name="scope">
+        <choice>
+          <value>begin</value>
+          <value>end</value>
+          <value>active</value>
+          <value>begin-end</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="form">
+        <choice>
+          <value>single</value>
+          <value>closedspan</value>
+          <value>openspan</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="era"/>
+    </optional>
+    <optional>
+      <attribute name="calendar"/>
+    </optional>
+    <optional>
+      <attribute name="normal"/>
+    </optional>
+  </define>
+  <define name="av.render">
+    <choice>
+      <value>bold</value>
+      <value>italic</value>
+      <value>bolditalic</value>
+      <value>boldunderline</value>
+      <value>boldsmcaps</value>
+      <value>boldquoted</value>
+      <value>nonproport</value>
+      <value>altrender</value>
+      <value>quoted</value>
+      <value>smcaps</value>
+      <value>sub</value>
+      <value>super</value>
+      <value>underline</value>
+    </choice>
+  </define>
+  <!--
+    linking attributes. this model employs xlink attributes,
+    but does not employ the xlink namespace because it is
+    is problematic. xslt can be used to convert instance
+    using this dtd into instance with xlink namespace
+    declarations and prefixing of appropriate attributes.
+  -->
+  <define name="a.simple">
+    <optional>
+      <attribute name="linktype" a:defaultValue="simple">
+        <value>simple</value>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="href"/>
+    </optional>
+    <optional>
+      <attribute name="role"/>
+    </optional>
+    <optional>
+      <attribute name="arcrole"/>
+    </optional>
+    <optional>
+      <attribute name="title"/>
+    </optional>
+    <optional>
+      <attribute name="show">
+        <choice>
+          <value>new</value>
+          <value>replace</value>
+          <value>embed</value>
+          <value>showother</value>
+          <value>shownone</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="actuate">
+        <choice>
+          <value>onload</value>
+          <value>onrequest</value>
+          <value>actuateother</value>
+          <value>actuatenone</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <define name="a.simple.in">
+    <optional>
+      <attribute name="targetin">
+        <ref name="idref.type"/>
+      </attribute>
+    </optional>
+    <ref name="a.simple"/>
+  </define>
+  <define name="a.simple.out">
+    <optional>
+      <attribute name="targetout">
+        <data type="ENTITY"/>
+      </attribute>
+    </optional>
+    <ref name="a.simple"/>
+  </define>
+  <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+  <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+  <!--
+    PART III
+    ENCODED ARCHIVAL CONTEXT ELEMENT AND ATTRIBUTE DECLARATIONS
+  -->
+  <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+  <!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+  <!-- ======================================================================= -->
+  <!-- ======================================================================= -->
+  <!-- Encoded Archival Context Group -->
+  <!-- ======================================================================= -->
+  <!-- Encoded Archival Context Group -->
+  <define name="eac">
+    <element name="eac">
+      <ref name="attlist.eac"/>
+      <ref name="eacheader"/>
+      <ref name="condesc"/>
+    </element>
+  </define>
+  <define name="attlist.eac" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <attribute name="type">
+      <choice>
+        <value>corpname</value>
+        <value>persname</value>
+        <value>famname</value>
+      </choice>
+    </attribute>
+  </define>
+  <!-- ======================================================================= -->
+  <!-- Encoded Archival Context Header -->
+  <define name="eacheader">
+    <element name="eacheader">
+      <ref name="attlist.eacheader"/>
+      <ref name="eacid"/>
+      <ref name="mainhist"/>
+      <optional>
+        <ref name="languagedecl"/>
+      </optional>
+      <optional>
+        <ref name="ruledecl"/>
+      </optional>
+      <optional>
+        <ref name="sourcedecl"/>
+      </optional>
+      <optional>
+        <ref name="authdecl"/>
+      </optional>
+    </element>
+  </define>
+  <define name="attlist.eacheader" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <attribute name="status">
+      <choice>
+        <value>draft</value>
+        <value>edited</value>
+        <value>deleted</value>
+      </choice>
+    </attribute>
+    <optional>
+      <attribute name="langencoding" a:defaultValue="iso639-2b">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="scriptencoding" a:defaultValue="iso15924">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="dateencoding" a:defaultValue="iso8601">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="countryencoding" a:defaultValue="iso3166-1">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="ownerencoding" a:defaultValue="iso15511">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="encodinganalogsys">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="detaillevel">
+        <choice>
+          <value>minimal</value>
+          <value>partial</value>
+          <value>full</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="a.type"/>
+  </define>
+  <!-- ======================================================================= -->
+  <!-- Encoded Archival Context Identifier -->
+  <define name="eacid">
+    <element name="eacid">
+      <ref name="attlist.eacid"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.eacid" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.syskey"/>
+  </define>
+  <!-- ======================================================================= -->
+  <!-- Context Description -->
+  <define name="condesc">
+    <element name="condesc">
+      <ref name="attlist.condesc"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <group>
+        <ref name="identity"/>
+        <optional>
+          <ref name="desc"/>
+        </optional>
+        <optional>
+          <ref name="eacrels"/>
+        </optional>
+        <optional>
+          <ref name="resourcerels"/>
+        </optional>
+        <optional>
+          <ref name="funactrels"/>
+        </optional>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.condesc" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- ======================================================================= -->
+  <!-- Context Description Group -->
+  <!-- ======================================================================= -->
+  <!-- Identity -->
+  <define name="identity">
+    <element name="identity">
+      <ref name="attlist.identity"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <group>
+        <zeroOrMore>
+          <ref name="legalid"/>
+        </zeroOrMore>
+        <choice>
+          <oneOrMore>
+            <choice>
+              <ref name="persgrp"/>
+              <ref name="pershead"/>
+            </choice>
+          </oneOrMore>
+          <oneOrMore>
+            <choice>
+              <ref name="corpgrp"/>
+              <ref name="corphead"/>
+            </choice>
+          </oneOrMore>
+          <oneOrMore>
+            <choice>
+              <ref name="famgrp"/>
+              <ref name="famhead"/>
+            </choice>
+          </oneOrMore>
+        </choice>
+        <zeroOrMore>
+          <ref name="nameadds"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="didentifier"/>
+        </zeroOrMore>
+        <group>
+          <optional>
+            <choice>
+              <ref name="sourceref"/>
+              <ref name="sourcerefs"/>
+            </choice>
+          </optional>
+          <optional>
+            <choice>
+              <ref name="descnote"/>
+              <ref name="descnotes"/>
+            </choice>
+          </optional>
+        </group>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.identity" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Legal Identifier -->
+  <define name="legalid">
+    <element name="legalid">
+      <ref name="attlist.legalid"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="part"/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.legalid" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+    <ref name="a.value"/>
+  </define>
+  <!-- Personal Name Heading Group -->
+  <define name="persgrp">
+    <element name="persgrp">
+      <ref name="attlist.persgrp"/>
+      <group>
+        <ref name="pershead"/>
+        <oneOrMore>
+          <ref name="pershead"/>
+        </oneOrMore>
+      </group>
+      <zeroOrMore>
+        <ref name="nameadds"/>
+      </zeroOrMore>
+      <optional>
+        <choice>
+          <ref name="sourceref"/>
+          <ref name="sourcerefs"/>
+        </choice>
+      </optional>
+      <optional>
+        <choice>
+          <ref name="descnote"/>
+          <ref name="descnotes"/>
+        </choice>
+      </optional>
+    </element>
+  </define>
+  <define name="attlist.persgrp" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Personal Name Heading -->
+  <define name="pershead">
+    <element name="pershead">
+      <ref name="attlist.pershead"/>
+      <ref name="m.namehead"/>
+    </element>
+  </define>
+  <define name="attlist.pershead" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.head"/>
+    <ref name="a.lang"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Corporate Body Heading Group -->
+  <define name="corpgrp">
+    <element name="corpgrp">
+      <ref name="attlist.corpgrp"/>
+      <group>
+        <ref name="corphead"/>
+        <oneOrMore>
+          <ref name="corphead"/>
+        </oneOrMore>
+      </group>
+      <zeroOrMore>
+        <ref name="nameadds"/>
+      </zeroOrMore>
+      <optional>
+        <choice>
+          <ref name="sourceref"/>
+          <ref name="sourcerefs"/>
+        </choice>
+      </optional>
+      <optional>
+        <choice>
+          <ref name="descnote"/>
+          <ref name="descnotes"/>
+        </choice>
+      </optional>
+    </element>
+  </define>
+  <define name="attlist.corpgrp" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Corporate Body Heading -->
+  <define name="corphead">
+    <element name="corphead">
+      <ref name="attlist.corphead"/>
+      <ref name="m.namehead"/>
+    </element>
+  </define>
+  <define name="attlist.corphead" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.head"/>
+    <ref name="a.lang"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Family Heading Group -->
+  <define name="famgrp">
+    <element name="famgrp">
+      <ref name="attlist.famgrp"/>
+      <group>
+        <ref name="famhead"/>
+        <oneOrMore>
+          <ref name="famhead"/>
+        </oneOrMore>
+      </group>
+      <zeroOrMore>
+        <ref name="nameadds"/>
+      </zeroOrMore>
+      <optional>
+        <choice>
+          <ref name="sourceref"/>
+          <ref name="sourcerefs"/>
+        </choice>
+      </optional>
+      <optional>
+        <choice>
+          <ref name="descnote"/>
+          <ref name="descnotes"/>
+        </choice>
+      </optional>
+    </element>
+  </define>
+  <define name="attlist.famgrp" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Family Heading -->
+  <define name="famhead">
+    <element name="famhead">
+      <ref name="attlist.famhead"/>
+      <ref name="m.namehead"/>
+    </element>
+  </define>
+  <define name="attlist.famhead" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.head"/>
+    <ref name="a.lang"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Digital Identifier -->
+  <define name="didentifier">
+    <element name="didentifier">
+      <ref name="attlist.didentifier"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.didentifier" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.simple.out"/>
+  </define>
+  <!-- Name Additions -->
+  <define name="nameadds">
+    <element name="nameadds">
+      <ref name="attlist.nameadds"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="place"/>
+          <ref name="existdate"/>
+          <ref name="nameadd"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.nameadds" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.lang"/>
+  </define>
+  <!-- Existence Date -->
+  <define name="existdate">
+    <element name="existdate">
+      <ref name="attlist.existdate"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+          <ref name="altdate"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.existdate" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.date"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Use Date -->
+  <define name="usedate">
+    <element name="usedate">
+      <ref name="attlist.usedate"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+          <ref name="altdate"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.usedate" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.date"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Source References -->
+  <define name="sourcerefs">
+    <element name="sourcerefs">
+      <ref name="attlist.sourcerefs"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <ref name="sourceref"/>
+      <oneOrMore>
+        <ref name="sourceref"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.sourcerefs" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Source Reference -->
+  <define name="sourceref">
+    <element name="sourceref">
+      <ref name="attlist.sourceref"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+          <ref name="sourceinfo"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.sourceref" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="sourceref">
+        <ref name="idref.type"/>
+      </attribute>
+    </optional>
+  </define>
+  <!-- EAC Relations -->
+  <define name="eacrels">
+    <element name="eacrels">
+      <ref name="attlist.eacrels"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <oneOrMore>
+        <ref name="eacrel"/>
+      </oneOrMore>
+      <optional>
+        <choice>
+          <ref name="sourceref"/>
+          <ref name="sourcerefs"/>
+        </choice>
+      </optional>
+      <optional>
+        <choice>
+          <ref name="descnote"/>
+          <ref name="descnotes"/>
+        </choice>
+      </optional>
+    </element>
+  </define>
+  <define name="attlist.eacrels" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- EAC Relation -->
+  <define name="eacrel">
+    <element name="eacrel">
+      <ref name="attlist.eacrel"/>
+      <choice>
+        <ref name="persname"/>
+        <ref name="corpname"/>
+        <ref name="famname"/>
+      </choice>
+      <group>
+        <optional>
+          <ref name="date"/>
+        </optional>
+        <optional>
+          <ref name="place"/>
+        </optional>
+        <optional>
+          <choice>
+            <ref name="descnote"/>
+            <ref name="descnotes"/>
+          </choice>
+        </optional>
+        <zeroOrMore>
+          <ref name="source"/>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.eacrel" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="reltype">
+        <choice>
+          <value>superior</value>
+          <value>subordinate</value>
+          <value>earlier</value>
+          <value>later</value>
+          <value>associative</value>
+          <value>parent</value>
+          <value>child</value>
+          <value>identity</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="a.syskey"/>
+    <ref name="a.type"/>
+    <optional>
+      <attribute name="rule">
+        <ref name="idref.type"/>
+      </attribute>
+    </optional>
+  </define>
+  <!-- Resource Relations -->
+  <define name="resourcerels">
+    <element name="resourcerels">
+      <ref name="attlist.resourcerels"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <oneOrMore>
+        <ref name="resourcerel"/>
+      </oneOrMore>
+      <optional>
+        <choice>
+          <ref name="sourceref"/>
+          <ref name="sourcerefs"/>
+        </choice>
+      </optional>
+      <optional>
+        <choice>
+          <ref name="descnote"/>
+          <ref name="descnotes"/>
+        </choice>
+      </optional>
+    </element>
+  </define>
+  <define name="attlist.resourcerels" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Resource Relation -->
+  <define name="resourcerel">
+    <element name="resourcerel">
+      <ref name="attlist.resourcerel"/>
+      <choice>
+        <ref name="bibunit"/>
+        <ref name="archunit"/>
+        <ref name="musunit"/>
+      </choice>
+      <group>
+        <optional>
+          <ref name="date"/>
+        </optional>
+        <optional>
+          <ref name="place"/>
+        </optional>
+        <optional>
+          <choice>
+            <ref name="descnote"/>
+            <ref name="descnotes"/>
+          </choice>
+        </optional>
+        <zeroOrMore>
+          <ref name="source"/>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.resourcerel" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="reltype">
+        <choice>
+          <value>origination</value>
+          <value>destruction</value>
+          <value>control</value>
+          <value>causa</value>
+          <value>subject</value>
+          <value>other</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="a.syskey"/>
+    <ref name="a.type"/>
+    <optional>
+      <attribute name="rule">
+        <ref name="idref.type"/>
+      </attribute>
+    </optional>
+  </define>
+  <!-- Bibliographic Unit Description -->
+  <define name="bibunit">
+    <element name="bibunit">
+      <ref name="attlist.bibunit"/>
+      <zeroOrMore>
+        <ref name="m.bibl"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.bibunit" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Archival Unit Description -->
+  <define name="archunit">
+    <element name="archunit">
+      <ref name="attlist.archunit"/>
+      <zeroOrMore>
+        <ref name="m.arch"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.archunit" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Museum Unit Description -->
+  <define name="musunit">
+    <element name="musunit">
+      <ref name="attlist.musunit"/>
+      <zeroOrMore>
+        <ref name="m.bibl"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.musunit" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Function/Activity Relations -->
+  <define name="funactrels">
+    <element name="funactrels">
+      <ref name="attlist.funactrels"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <oneOrMore>
+        <ref name="funactrel"/>
+      </oneOrMore>
+      <optional>
+        <choice>
+          <ref name="sourceref"/>
+          <ref name="sourcerefs"/>
+        </choice>
+      </optional>
+      <optional>
+        <choice>
+          <ref name="descnote"/>
+          <ref name="descnotes"/>
+        </choice>
+      </optional>
+    </element>
+  </define>
+  <define name="attlist.funactrels" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Function/Activity Relation -->
+  <define name="funactrel">
+    <element name="funactrel">
+      <ref name="attlist.funactrel"/>
+      <ref name="funact"/>
+      <group>
+        <optional>
+          <ref name="date"/>
+        </optional>
+        <optional>
+          <ref name="place"/>
+        </optional>
+        <optional>
+          <choice>
+            <ref name="descnote"/>
+            <ref name="descnotes"/>
+          </choice>
+        </optional>
+        <zeroOrMore>
+          <ref name="source"/>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.funactrel" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="reltype"/>
+    </optional>
+    <ref name="a.syskey"/>
+    <ref name="a.type"/>
+    <optional>
+      <attribute name="rule">
+        <ref name="idref.type"/>
+      </attribute>
+    </optional>
+  </define>
+  <!-- Description -->
+  <define name="desc">
+    <element name="desc">
+      <ref name="attlist.desc"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <group>
+        <optional>
+          <choice>
+            <ref name="corpdesc"/>
+            <ref name="persdesc"/>
+            <ref name="famdesc"/>
+          </choice>
+        </optional>
+        <zeroOrMore>
+          <choice>
+            <ref name="bioghist"/>
+            <ref name="ocd"/>
+          </choice>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.desc" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Corporate Body Description -->
+  <define name="corpdesc">
+    <element name="corpdesc">
+      <ref name="attlist.corpdesc"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <group>
+        <optional>
+          <ref name="existdesc"/>
+        </optional>
+        <zeroOrMore>
+          <choice>
+            <ref name="corptype"/>
+            <ref name="legalstatus"/>
+            <ref name="location"/>
+            <ref name="descentry"/>
+          </choice>
+        </zeroOrMore>
+        <zeroOrMore>
+          <choice>
+            <ref name="locations"/>
+            <ref name="causa"/>
+            <ref name="funactdesc"/>
+            <ref name="assetstruct"/>
+            <ref name="env"/>
+            <ref name="ocd"/>
+          </choice>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.corpdesc" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Corporate Body Type -->
+  <define name="corptype">
+    <element name="corptype">
+      <ref name="attlist.corptype"/>
+      <ref name="value"/>
+      <optional>
+        <ref name="date"/>
+      </optional>
+      <optional>
+        <ref name="place"/>
+      </optional>
+      <zeroOrMore>
+        <choice>
+          <ref name="descnote"/>
+          <ref name="sourceref"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.corptype" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Existence Description -->
+  <define name="existdesc">
+    <element name="existdesc">
+      <ref name="attlist.existdesc"/>
+      <zeroOrMore>
+        <ref name="existdate"/>
+        <optional>
+          <ref name="place"/>
+        </optional>
+      </zeroOrMore>
+      <zeroOrMore>
+        <choice>
+          <ref name="descnote"/>
+          <ref name="sourceref"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.existdesc" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Legal Status -->
+  <define name="legalstatus">
+    <element name="legalstatus">
+      <ref name="attlist.legalstatus"/>
+      <ref name="value"/>
+      <optional>
+        <ref name="date"/>
+      </optional>
+      <optional>
+        <ref name="place"/>
+      </optional>
+      <zeroOrMore>
+        <choice>
+          <ref name="descnote"/>
+          <ref name="sourceref"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.legalstatus" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Location -->
+  <define name="location">
+    <element name="location">
+      <ref name="attlist.location"/>
+      <optional>
+        <ref name="address"/>
+      </optional>
+      <optional>
+        <ref name="date"/>
+      </optional>
+      <optional>
+        <ref name="place"/>
+      </optional>
+      <zeroOrMore>
+        <choice>
+          <ref name="descnote"/>
+          <ref name="sourceref"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.location" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Locations -->
+  <define name="locations">
+    <element name="locations">
+      <ref name="attlist.locations"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <group>
+        <oneOrMore>
+          <ref name="location"/>
+        </oneOrMore>
+        <zeroOrMore>
+          <ref name="m.blocks"/>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.locations" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Causa -->
+  <define name="causa">
+    <element name="causa">
+      <ref name="attlist.causa"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <group>
+        <zeroOrMore>
+          <ref name="descentry"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="m.blocks"/>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.causa" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Function/Activity Description -->
+  <define name="funactdesc">
+    <element name="funactdesc">
+      <ref name="attlist.funactdesc"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <group>
+        <zeroOrMore>
+          <ref name="descentry"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="m.blocks"/>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.funactdesc" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Assets and Structure -->
+  <define name="assetstruct">
+    <element name="assetstruct">
+      <ref name="attlist.assetstruct"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <group>
+        <zeroOrMore>
+          <ref name="descentry"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="m.blocks"/>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.assetstruct" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Environment -->
+  <define name="env">
+    <element name="env">
+      <ref name="attlist.env"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <group>
+        <zeroOrMore>
+          <ref name="descentry"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="m.blocks"/>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.env" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Other Context Description -->
+  <define name="ocd">
+    <element name="ocd">
+      <ref name="attlist.ocd"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <group>
+        <zeroOrMore>
+          <ref name="descentry"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <choice>
+            <ref name="m.blocks"/>
+            <ref name="ocd"/>
+          </choice>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.ocd" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Person Description -->
+  <define name="persdesc">
+    <element name="persdesc">
+      <ref name="attlist.persdesc"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <group>
+        <optional>
+          <ref name="existdesc"/>
+        </optional>
+        <zeroOrMore>
+          <choice>
+            <ref name="legalstatus"/>
+            <ref name="sex"/>
+            <ref name="location"/>
+            <ref name="descentry"/>
+          </choice>
+        </zeroOrMore>
+        <zeroOrMore>
+          <choice>
+            <ref name="locations"/>
+            <ref name="funactdesc"/>
+            <ref name="character"/>
+            <ref name="env"/>
+            <ref name="ocd"/>
+          </choice>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.persdesc" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Sex -->
+  <define name="sex">
+    <element name="sex">
+      <ref name="attlist.sex"/>
+      <optional>
+        <ref name="value"/>
+      </optional>
+      <optional>
+        <ref name="date"/>
+      </optional>
+      <optional>
+        <ref name="place"/>
+      </optional>
+      <zeroOrMore>
+        <choice>
+          <ref name="descnote"/>
+          <ref name="sourceref"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.sex" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <attribute name="type">
+      <choice>
+        <value>m</value>
+        <value>f</value>
+        <value>u</value>
+      </choice>
+    </attribute>
+  </define>
+  <!-- Characteristics -->
+  <define name="character">
+    <element name="character">
+      <ref name="attlist.character"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <group>
+        <zeroOrMore>
+          <choice>
+            <ref name="sex"/>
+            <ref name="descentry"/>
+          </choice>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="m.blocks"/>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.character" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Family Description -->
+  <define name="famdesc">
+    <element name="famdesc">
+      <ref name="attlist.famdesc"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <group>
+        <optional>
+          <ref name="existdesc"/>
+        </optional>
+        <zeroOrMore>
+          <choice>
+            <ref name="legalstatus"/>
+            <ref name="location"/>
+            <ref name="descentry"/>
+          </choice>
+        </zeroOrMore>
+        <zeroOrMore>
+          <choice>
+            <ref name="locations"/>
+            <ref name="funactdesc"/>
+            <ref name="assetstruct"/>
+            <ref name="env"/>
+            <ref name="ocd"/>
+          </choice>
+        </zeroOrMore>
+      </group>
+    </element>
+  </define>
+  <define name="attlist.famdesc" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Biography or History -->
+  <define name="bioghist">
+    <element name="bioghist">
+      <ref name="attlist.bioghist"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <oneOrMore>
+        <choice>
+          <ref name="m.blocks"/>
+          <ref name="bioghist"/>
+          <ref name="didentifier"/>
+        </choice>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.bioghist" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Descriptive Entry -->
+  <define name="descentry">
+    <element name="descentry">
+      <ref name="attlist.descentry"/>
+      <ref name="value"/>
+      <optional>
+        <ref name="date"/>
+      </optional>
+      <optional>
+        <ref name="place"/>
+      </optional>
+      <zeroOrMore>
+        <choice>
+          <ref name="descnote"/>
+          <ref name="sourceref"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.descentry" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Value -->
+  <define name="value">
+    <element name="value">
+      <ref name="attlist.value"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.value" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.value"/>
+  </define>
+  <!-- Maintenance History -->
+  <define name="mainhist">
+    <element name="mainhist">
+      <ref name="attlist.mainhist"/>
+      <oneOrMore>
+        <ref name="mainevent"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.mainhist" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Maintenance Event -->
+  <define name="mainevent">
+    <element name="mainevent">
+      <ref name="attlist.mainevent"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="name"/>
+          <ref name="maindate"/>
+          <ref name="maindesc"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.mainevent" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <attribute name="maintype">
+      <choice>
+        <value>create</value>
+        <value>update</value>
+        <value>delete</value>
+        <value>import</value>
+      </choice>
+    </attribute>
+  </define>
+  <!-- Maintenance Description -->
+  <define name="maindesc">
+    <element name="maindesc">
+      <ref name="attlist.maindesc"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.maindesc" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Maintenance Date -->
+  <define name="maindate">
+    <element name="maindate">
+      <ref name="attlist.maindate"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.maindate" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="calendar"/>
+    </optional>
+    <optional>
+      <attribute name="normal"/>
+    </optional>
+  </define>
+  <!-- Language Declaration -->
+  <define name="languagedecl">
+    <element name="languagedecl">
+      <ref name="attlist.languagedecl"/>
+      <oneOrMore>
+        <ref name="language"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.languagedecl" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Language -->
+  <define name="language">
+    <element name="language">
+      <ref name="attlist.language"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.language" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.lang"/>
+  </define>
+  <!-- Rule Declaration -->
+  <define name="ruledecl">
+    <element name="ruledecl">
+      <ref name="attlist.ruledecl"/>
+      <oneOrMore>
+        <ref name="rule"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.ruledecl" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Rule -->
+  <define name="rule">
+    <element name="rule">
+      <ref name="attlist.rule"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.rule" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.sys"/>
+  </define>
+  <!-- Source Declaration -->
+  <define name="sourcedecl">
+    <element name="sourcedecl">
+      <ref name="attlist.sourcedecl"/>
+      <oneOrMore>
+        <ref name="source"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.sourcedecl" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Source -->
+  <define name="source">
+    <element name="source">
+      <ref name="attlist.source"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="m.bibl"/>
+          <ref name="sourceinfo"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.source" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.syskey"/>
+  </define>
+  <!-- Authority Declaration -->
+  <define name="authdecl">
+    <element name="authdecl">
+      <ref name="attlist.authdecl"/>
+      <oneOrMore>
+        <ref name="auth"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.authdecl" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Authority -->
+  <define name="auth">
+    <element name="auth">
+      <ref name="attlist.auth"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.auth" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="type">
+        <choice>
+          <value>type</value>
+          <value>value</value>
+          <value>both</value>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="a.sys"/>
+  </define>
+  <!-- Name -->
+  <define name="name">
+    <element name="name">
+      <ref name="attlist.name"/>
+      <ref name="m.name"/>
+    </element>
+  </define>
+  <define name="attlist.name" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+    <ref name="a.value"/>
+  </define>
+  <!-- Imprint -->
+  <define name="imprint">
+    <element name="imprint">
+      <ref name="attlist.imprint"/>
+      <zeroOrMore>
+        <choice>
+          <ref name="place"/>
+          <ref name="publisher"/>
+          <ref name="date"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.imprint" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Publisher -->
+  <define name="publisher">
+    <element name="publisher">
+      <ref name="attlist.publisher"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.publisher" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Title -->
+  <define name="title">
+    <element name="title">
+      <ref name="attlist.title"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+          <ref name="date"/>
+          <ref name="num"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.title" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="render">
+        <choice>
+          <ref name="av.render"/>
+        </choice>
+      </attribute>
+    </optional>
+    <ref name="a.simple.out"/>
+  </define>
+  <!-- Edition -->
+  <define name="edition">
+    <element name="edition">
+      <ref name="attlist.edition"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.edition" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Bibliographic Series -->
+  <define name="bibseries">
+    <element name="bibseries">
+      <ref name="attlist.bibseries"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+          <ref name="title"/>
+          <ref name="num"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.bibseries" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Head -->
+  <define name="head">
+    <element name="head">
+      <ref name="attlist.head"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.head" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Paragraph -->
+  <define name="p">
+    <element name="p">
+      <ref name="attlist.p"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.para.content"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.p" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Line Break -->
+  <define name="lb">
+    <element name="lb">
+      <ref name="attlist.lb"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.lb" combine="interleave">
+    <empty/>
+  </define>
+  <!-- Emphasis -->
+  <define name="emph">
+    <element name="emph">
+      <ref name="attlist.emph"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.emph" combine="interleave">
+    <ref name="a.common"/>
+    <optional>
+      <attribute name="render">
+        <choice>
+          <ref name="av.render"/>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <!-- Abbreviation -->
+  <define name="abbr">
+    <element name="abbr">
+      <ref name="attlist.abbr"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.abbr" combine="interleave">
+    <ref name="a.common"/>
+    <optional>
+      <attribute name="expan"/>
+    </optional>
+  </define>
+  <!-- Expansion -->
+  <define name="expan">
+    <element name="expan">
+      <ref name="attlist.expan"/>
+      <text/>
+    </element>
+  </define>
+  <define name="attlist.expan" combine="interleave">
+    <ref name="a.common"/>
+    <optional>
+      <attribute name="abbr"/>
+    </optional>
+  </define>
+  <!-- Number -->
+  <define name="num">
+    <element name="num">
+      <ref name="attlist.num"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.num" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+  </define>
+  <!-- Block Quote -->
+  <define name="blockquote">
+    <element name="blockquote">
+      <ref name="attlist.blockquote"/>
+      <zeroOrMore>
+        <ref name="m.blocks.noquote"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.blockquote" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Pointer -->
+  <define name="ptr">
+    <element name="ptr">
+      <ref name="attlist.ptr"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.ptr" combine="interleave">
+    <ref name="a.simple.in"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- External Pointer -->
+  <define name="extptr">
+    <element name="extptr">
+      <ref name="attlist.extptr"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.extptr" combine="interleave">
+    <ref name="a.simple.out"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Reference -->
+  <define name="ref">
+    <element name="ref">
+      <ref name="attlist.ref"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.para.content.norefs"/>
+          <ref name="bibref"/>
+          <ref name="title"/>
+          <ref name="extref"/>
+          <ref name="archref"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.ref" combine="interleave">
+    <ref name="a.simple.in"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- External Reference -->
+  <define name="extref">
+    <element name="extref">
+      <ref name="attlist.extref"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.para.content.norefs"/>
+          <ref name="bibref"/>
+          <ref name="title"/>
+          <ref name="extref"/>
+          <ref name="archref"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.extref" combine="interleave">
+    <ref name="a.simple.out"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Archival Reference -->
+  <define name="archref">
+    <element name="archref">
+      <ref name="attlist.archref"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs"/>
+          <ref name="bibref"/>
+          <ref name="ref"/>
+          <ref name="title"/>
+          <ref name="extref"/>
+          <ref name="m.arch"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.archref" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.simple.out"/>
+  </define>
+  <!-- Bibliographic Reference -->
+  <define name="bibref">
+    <element name="bibref">
+      <ref name="attlist.bibref"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs"/>
+          <ref name="edition"/>
+          <ref name="imprint"/>
+          <ref name="name"/>
+          <ref name="num"/>
+          <ref name="bibseries"/>
+          <ref name="ref"/>
+          <ref name="title"/>
+          <ref name="famname"/>
+          <ref name="persname"/>
+          <ref name="corpname"/>
+          <ref name="extref"/>
+          <ref name="archref"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.bibref" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.simple.out"/>
+  </define>
+  <!-- List -->
+  <define name="list">
+    <element name="list">
+      <ref name="attlist.list"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <choice>
+        <oneOrMore>
+          <ref name="item"/>
+        </oneOrMore>
+        <group>
+          <optional>
+            <ref name="listhead"/>
+          </optional>
+          <oneOrMore>
+            <ref name="items"/>
+          </oneOrMore>
+        </group>
+      </choice>
+    </element>
+  </define>
+  <define name="attlist.list" combine="interleave">
+    <ref name="a.common"/>
+    <optional>
+      <attribute name="type">
+        <choice>
+          <value>simple</value>
+          <value>deflist</value>
+          <value>marked</value>
+          <value>ordered</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="mark"/>
+    </optional>
+    <optional>
+      <attribute name="numeration">
+        <choice>
+          <value>arabic</value>
+          <value>upperalpha</value>
+          <value>loweralpha</value>
+          <value>upperroman</value>
+          <value>lowerroman</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="continuation">
+        <choice>
+          <value>continues</value>
+          <value>starts</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <!-- List Head -->
+  <define name="listhead">
+    <element name="listhead">
+      <ref name="attlist.listhead"/>
+      <optional>
+        <ref name="head01"/>
+      </optional>
+      <optional>
+        <ref name="head02"/>
+      </optional>
+    </element>
+  </define>
+  <define name="attlist.listhead" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Item -->
+  <define name="item">
+    <element name="item">
+      <ref name="attlist.item"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.para.content"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.item" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Items -->
+  <define name="items">
+    <element name="items">
+      <ref name="attlist.items"/>
+      <ref name="item"/>
+      <ref name="item"/>
+    </element>
+  </define>
+  <define name="attlist.items" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Chronological List -->
+  <define name="chronlist">
+    <element name="chronlist">
+      <ref name="attlist.chronlist"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <optional>
+        <ref name="chronhead"/>
+      </optional>
+      <oneOrMore>
+        <ref name="chronitem"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.chronlist" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Chronological Head -->
+  <define name="chronhead">
+    <element name="chronhead">
+      <ref name="attlist.chronhead"/>
+      <optional>
+        <ref name="head01"/>
+      </optional>
+      <optional>
+        <ref name="head02"/>
+      </optional>
+      <optional>
+        <ref name="head03"/>
+      </optional>
+    </element>
+  </define>
+  <define name="attlist.chronhead" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Head One -->
+  <define name="head01">
+    <element name="head01">
+      <ref name="attlist.head01"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.head01" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Head Two -->
+  <define name="head02">
+    <element name="head02">
+      <ref name="attlist.head02"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.head02" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Head Three -->
+  <define name="head03">
+    <element name="head03">
+      <ref name="attlist.head03"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.head03" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Chronological Item -->
+  <define name="chronitem">
+    <element name="chronitem">
+      <ref name="attlist.chronitem"/>
+      <ref name="date"/>
+      <optional>
+        <ref name="place"/>
+      </optional>
+      <choice>
+        <ref name="event"/>
+        <ref name="eventgrp"/>
+      </choice>
+    </element>
+  </define>
+  <define name="attlist.chronitem" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Event -->
+  <define name="event">
+    <element name="event">
+      <ref name="attlist.event"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.para.content"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.event" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Event Group -->
+  <define name="eventgrp">
+    <element name="eventgrp">
+      <ref name="attlist.eventgrp"/>
+      <oneOrMore>
+        <ref name="event"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.eventgrp" combine="interleave">
+    <ref name="a.common"/>
+  </define>
+  <!-- Physical Description -->
+  <define name="physdesc">
+    <element name="physdesc">
+      <ref name="attlist.physdesc"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+          <ref name="dimensions"/>
+          <ref name="physfacet"/>
+          <ref name="extent"/>
+          <ref name="date"/>
+          <ref name="m.access"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.physdesc" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+  </define>
+  <!-- Dimensions -->
+  <define name="dimensions">
+    <element name="dimensions">
+      <ref name="attlist.dimensions"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+          <ref name="dimensions"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.dimensions" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+    <optional>
+      <attribute name="unit"/>
+    </optional>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+  </define>
+  <!-- Physical Facet -->
+  <define name="physfacet">
+    <element name="physfacet">
+      <ref name="attlist.physfacet"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+          <ref name="m.access"/>
+          <ref name="date"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.physfacet" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+    <optional>
+      <attribute name="unit"/>
+    </optional>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+  </define>
+  <!-- Extent -->
+  <define name="extent">
+    <element name="extent">
+      <ref name="attlist.extent"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.extent" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+    <optional>
+      <attribute name="unit"/>
+    </optional>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+  </define>
+  <!-- Origination -->
+  <define name="origination">
+    <element name="origination">
+      <ref name="attlist.origination"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+          <ref name="corpname"/>
+          <ref name="famname"/>
+          <ref name="name"/>
+          <ref name="persname"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.origination" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+  </define>
+  <!-- Repository -->
+  <define name="repository">
+    <element name="repository">
+      <ref name="attlist.repository"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+          <ref name="address"/>
+          <ref name="corpname"/>
+          <ref name="name"/>
+          <ref name="subarea"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.repository" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+  </define>
+  <!-- Subordinate or Subject Area -->
+  <define name="subarea">
+    <element name="subarea">
+      <ref name="attlist.subarea"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.subarea" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Unit Date -->
+  <define name="unitdate">
+    <element name="unitdate">
+      <ref name="attlist.unitdate"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.unitdate" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.date"/>
+    <optional>
+      <attribute name="type">
+        <choice>
+          <value>bulk</value>
+          <value>inclusive</value>
+          <value>single</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+    <optional>
+      <attribute name="datechar"/>
+    </optional>
+  </define>
+  <!-- Unit Identifier -->
+  <define name="unitid">
+    <element name="unitid">
+      <ref name="attlist.unitid"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.unitid" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.syskey"/>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+  </define>
+  <!-- Container -->
+  <define name="container">
+    <element name="container">
+      <ref name="attlist.container"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.container" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+  </define>
+  <!-- Physical Location -->
+  <define name="physloc">
+    <element name="physloc">
+      <ref name="attlist.physloc"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.physloc" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+  </define>
+  <!-- Language of Material -->
+  <define name="langmaterial">
+    <element name="langmaterial">
+      <ref name="attlist.langmaterial"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+          <ref name="language"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.langmaterial" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+  </define>
+  <!-- Material Specification -->
+  <define name="materialspec">
+    <element name="materialspec">
+      <ref name="attlist.materialspec"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+          <ref name="num"/>
+          <ref name="materialspec"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.materialspec" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+  </define>
+  <!-- Unit Title -->
+  <define name="unittitle">
+    <element name="unittitle">
+      <ref name="attlist.unittitle"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+          <ref name="m.access"/>
+          <ref name="unitdate"/>
+          <ref name="num"/>
+          <ref name="date"/>
+          <ref name="bibseries"/>
+          <ref name="edition"/>
+          <ref name="imprint"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.unittitle" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+  </define>
+  <!-- Abstract -->
+  <define name="abstract">
+    <element name="abstract">
+      <ref name="attlist.abstract"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs.refs"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.abstract" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+    <optional>
+      <attribute name="label"/>
+    </optional>
+  </define>
+  <!-- Source Information -->
+  <define name="sourceinfo">
+    <element name="sourceinfo">
+      <ref name="attlist.sourceinfo"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.para.content"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.sourceinfo" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Date -->
+  <define name="date">
+    <element name="date">
+      <ref name="attlist.date"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+          <ref name="altdate"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.date" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.date"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Alternative Date -->
+  <define name="altdate">
+    <element name="altdate">
+      <ref name="attlist.altdate"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.altdate" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Place -->
+  <define name="place">
+    <element name="place">
+      <ref name="attlist.place"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="part"/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.place" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="placetype">
+        <choice>
+          <value>geog</value>
+          <value>juris</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="normal"/>
+    </optional>
+    <ref name="a.type"/>
+    <ref name="a.value"/>
+  </define>
+  <!-- Personal Name -->
+  <define name="persname">
+    <element name="persname">
+      <ref name="attlist.persname"/>
+      <ref name="m.name"/>
+    </element>
+  </define>
+  <define name="attlist.persname" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Corporate Name -->
+  <define name="corpname">
+    <element name="corpname">
+      <ref name="attlist.corpname"/>
+      <ref name="m.name"/>
+    </element>
+  </define>
+  <define name="attlist.corpname" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Family Name -->
+  <define name="famname">
+    <element name="famname">
+      <ref name="attlist.famname"/>
+      <ref name="m.name"/>
+    </element>
+  </define>
+  <define name="attlist.famname" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Name Addition -->
+  <define name="nameadd">
+    <element name="nameadd">
+      <ref name="attlist.nameadd"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.nameadd" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Subject Term -->
+  <define name="subject">
+    <element name="subject">
+      <ref name="attlist.subject"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="ignore"/>
+          <ref name="part"/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.subject" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+    <ref name="a.value"/>
+  </define>
+  <!-- Genre/Form Term -->
+  <define name="genreform">
+    <element name="genreform">
+      <ref name="attlist.genreform"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="ignore"/>
+          <ref name="part"/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.genreform" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+    <ref name="a.value"/>
+  </define>
+  <!-- Part of Name -->
+  <define name="part">
+    <element name="part">
+      <ref name="attlist.part"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+          <ref name="ignore"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.part" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+  </define>
+  <!--
+    Ignore Characters
+    
+     Used to designate characters used in headings or other entries
+     that are to be ignored in sorting, indexing, display, or
+     combinations.
+    
+     @type values:
+       i   = index
+       s   = sort
+       d   = display
+       di  = display-indexing
+       is  = indexing-display
+       ds  = display-sort
+       all = display-index-sort
+  -->
+  <define name="ignore">
+    <element name="ignore">
+      <ref name="attlist.ignore"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.ignore" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="type">
+        <choice>
+          <value>i</value>
+          <value>s</value>
+          <value>d</value>
+          <value>di</value>
+          <value>is</value>
+          <value>ds</value>
+          <value>all</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="authorized"/>
+    </optional>
+  </define>
+  <!-- Address -->
+  <define name="address">
+    <element name="address">
+      <ref name="attlist.address"/>
+      <oneOrMore>
+        <ref name="addressline"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.address" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Addressline -->
+  <define name="addressline">
+    <element name="addressline">
+      <ref name="attlist.addressline"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.base.ptrs"/>
+          <ref name="extref"/>
+          <ref name="ref"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.addressline" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+  </define>
+  <!-- Descriptive Notes -->
+  <define name="descnotes">
+    <element name="descnotes">
+      <ref name="attlist.descnotes"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <ref name="descnote"/>
+      <oneOrMore>
+        <ref name="descnote"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.descnotes" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+  </define>
+  <!-- Descriptive Note -->
+  <define name="descnote">
+    <element name="descnote">
+      <ref name="attlist.descnote"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.para.content"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.descnote" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+  </define>
+  <!-- Note -->
+  <define name="note">
+    <element name="note">
+      <ref name="attlist.note"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.para.content"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.note" combine="interleave">
+    <ref name="a.common"/>
+    <optional>
+      <attribute name="type"/>
+    </optional>
+  </define>
+  <!-- Function/Activity Term -->
+  <define name="funact">
+    <element name="funact">
+      <ref name="attlist.funact"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="ignore"/>
+          <ref name="part"/>
+          <ref name="m.base"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.funact" combine="interleave">
+    <ref name="a.common"/>
+    <ref name="a.ea"/>
+    <ref name="a.type"/>
+    <ref name="a.value"/>
+  </define>
+  <!-- ===================================================================== -->
+  <!-- OASIS-OPEN XML Exchange Table Model Entity -->
+  <!-- ===================================================================== -->
+  <!--
+    Binary
+    
+    Used in Oasis xml table model: zero(s) = no; anything
+    else = yes
+  -->
+  <define name="yesorno">
+    <data type="NMTOKEN"/>
+  </define>
+  <!-- ======================================================================= -->
+  <!-- ======================================================================= -->
+  <!--
+    Table Element Declarations
+    
+    Oasis XML Exchange Table Model
+    
+    Note: Modified by expanding parameter entities; adding a.common
+    attributes to non-empty elements; title element is eac head
+    element. entry content is defined in parameter entity section
+    Parameter Entities for Elements above.
+  -->
+  <!-- Table -->
+  <define name="table">
+    <element name="table">
+      <ref name="attlist.table"/>
+      <optional>
+        <ref name="head"/>
+      </optional>
+      <oneOrMore>
+        <ref name="tgroup"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.table" combine="interleave">
+    <ref name="a.common"/>
+    <optional>
+      <attribute name="frame">
+        <choice>
+          <value>top</value>
+          <value>bottom</value>
+          <value>topbot</value>
+          <value>all</value>
+          <value>sides</value>
+          <value>none</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="colsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="pgwide">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+  </define>
+  <!-- Table Group -->
+  <define name="tgroup">
+    <element name="tgroup">
+      <ref name="attlist.tgroup"/>
+      <zeroOrMore>
+        <ref name="colspec"/>
+      </zeroOrMore>
+      <optional>
+        <ref name="thead"/>
+      </optional>
+      <ref name="tbody"/>
+    </element>
+  </define>
+  <define name="attlist.tgroup" combine="interleave">
+    <ref name="a.common"/>
+    <attribute name="cols">
+      <data type="NMTOKEN"/>
+    </attribute>
+    <optional>
+      <attribute name="colsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="align">
+        <choice>
+          <value>left</value>
+          <value>right</value>
+          <value>center</value>
+          <value>justify</value>
+          <value>char</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <!-- Column Specification -->
+  <define name="colspec">
+    <element name="colspec">
+      <ref name="attlist.colspec"/>
+      <empty/>
+    </element>
+  </define>
+  <define name="attlist.colspec" combine="interleave">
+    <optional>
+      <attribute name="colnum">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="colname">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="colwidth"/>
+    </optional>
+    <optional>
+      <attribute name="colsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="align">
+        <choice>
+          <value>left</value>
+          <value>right</value>
+          <value>center</value>
+          <value>justify</value>
+          <value>char</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="char"/>
+    </optional>
+    <optional>
+      <attribute name="charoff">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+  </define>
+  <!-- Table Head -->
+  <define name="thead">
+    <element name="thead">
+      <ref name="attlist.thead"/>
+      <oneOrMore>
+        <ref name="row"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.thead" combine="interleave">
+    <ref name="a.common"/>
+    <optional>
+      <attribute name="valign">
+        <choice>
+          <value>top</value>
+          <value>middle</value>
+          <value>bottom</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <!-- Table Body -->
+  <define name="tbody">
+    <element name="tbody">
+      <ref name="attlist.tbody"/>
+      <oneOrMore>
+        <ref name="row"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.tbody" combine="interleave">
+    <ref name="a.common"/>
+    <optional>
+      <attribute name="valign">
+        <choice>
+          <value>top</value>
+          <value>middle</value>
+          <value>bottom</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <!-- Row -->
+  <define name="row">
+    <element name="row">
+      <ref name="attlist.row"/>
+      <oneOrMore>
+        <ref name="entry"/>
+      </oneOrMore>
+    </element>
+  </define>
+  <define name="attlist.row" combine="interleave">
+    <ref name="a.common"/>
+    <optional>
+      <attribute name="rowsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="valign">
+        <choice>
+          <value>top</value>
+          <value>middle</value>
+          <value>bottom</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <!-- Entry -->
+  <define name="entry">
+    <element name="entry">
+      <ref name="attlist.entry"/>
+      <zeroOrMore>
+        <choice>
+          <text/>
+          <ref name="m.table.entry"/>
+        </choice>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define name="attlist.entry" combine="interleave">
+    <ref name="a.common"/>
+    <optional>
+      <attribute name="colname">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="namest">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="nameend">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="morerows">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="colsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="rowsep">
+        <ref name="yesorno"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="align">
+        <choice>
+          <value>left</value>
+          <value>right</value>
+          <value>center</value>
+          <value>justify</value>
+          <value>char</value>
+        </choice>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="char"/>
+    </optional>
+    <optional>
+      <attribute name="charoff">
+        <data type="NMTOKEN"/>
+      </attribute>
+    </optional>
+    <optional>
+      <attribute name="valign">
+        <choice>
+          <value>top</value>
+          <value>middle</value>
+          <value>bottom</value>
+        </choice>
+      </attribute>
+    </optional>
+  </define>
+  <start>
+    <choice>
+      <ref name="eac"/>
+    </choice>
+  </start>
+</grammar>
+<!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+<!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+<!--
+  END ENCODED ARCHIVAL CONTEXT DOCUMENT TYPE DEFINITION
+  (EAC DTD)
+-->
+<!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+<!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
+<!-- ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: -->
